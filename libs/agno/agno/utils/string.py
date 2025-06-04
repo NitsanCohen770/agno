@@ -62,6 +62,40 @@ def hash_string_sha256(input_string):
     return hex_digest
 
 
+def _fix_json_quotes(content: str) -> str:
+    """
+    Fix unescaped quotes in JSON string values.
+    
+    This function specifically handles the case where quotes inside JSON string 
+    values are not properly escaped, which is a common issue when parsing
+    LLM-generated responses.
+    """
+    try:
+        json.loads(content)
+        return content
+    except json.JSONDecodeError:
+        pass
+    
+    def escape_quotes_in_values(match):
+        key = match.group(1) 
+        value = match.group(2)
+        
+        if '\\"' not in value:
+            escaped_value = value.replace('"', '\\"')
+        else:
+            escaped_value = value.replace('"', '\\"').replace('\\\\"', '\\"')
+        
+        return f'"{key.lower()}": "{escaped_value}"'
+    
+    fixed_content = re.sub(
+        r'"([^"]+)":\s*"(.*?)"(?=\s*[,}])',
+        escape_quotes_in_values,
+        content
+    )
+    
+    return fixed_content
+
+
 def parse_response_model_str(content: str, response_model: Type[BaseModel]) -> Optional[BaseModel]:
     structured_output = None
     try:
@@ -88,16 +122,7 @@ def parse_response_model_str(content: str, response_model: Type[BaseModel]) -> O
         content = content.replace("\n", " ").replace("\r", "")
         content = re.sub(r"[\x00-\x1F\x7F]", "", content)
 
-        # Escape quotes only in values, not keys
-        def escape_quotes_in_values(match):
-            key = match.group(1)
-            value = match.group(2)
-            # Escape quotes in the value portion only
-            escaped_value = value.replace('"', '\\"')
-            return f'"{key.lower()}": "{escaped_value}'
-
-        # Find and escape quotes in field values
-        content = re.sub(r'"(?P<key>[^"]+)"\s*:\s*"(?P<value>.*?)(?="\s*(?:,|\}))', escape_quotes_in_values, content)
+        content = _fix_json_quotes(content)
 
         try:
             # Try parsing the cleaned JSON
