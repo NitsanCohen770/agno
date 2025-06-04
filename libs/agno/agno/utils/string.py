@@ -88,9 +88,10 @@ def _fix_json_quotes(content: str) -> str:
         return f'"{key.lower()}": "{escaped_value}"'
     
     fixed_content = re.sub(
-        r'"([^"]+)":\s*"(.*?)"(?=\s*[,}])',
+        r'"([^"]+)":\s*"(.*?)"(?=\s*[,}\]])',
         escape_quotes_in_values,
-        content
+        content,
+        flags=re.DOTALL
     )
     
     return fixed_content
