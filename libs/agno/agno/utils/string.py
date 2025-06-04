@@ -85,7 +85,7 @@ def _fix_json_quotes(content: str) -> str:
         else:
             escaped_value = value.replace('"', '\\"').replace('\\\\"', '\\"')
         
-        return f'"{key.lower()}": "{escaped_value}"'
+        return f'"{key}": "{escaped_value}"'
     
     fixed_content = re.sub(
         r'"([^"]+)":\s*"(.*?)"(?=\s*[,}\]])',
