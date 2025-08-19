@@ -5885,6 +5885,9 @@ class Agent:
                 telemetry=self.telemetry,
                 debug_mode=self.debug_mode,
                 debug_level=self.debug_level,
+                session_state=self.session_state,
+                context=self.context,
+                extra_data=self.extra_data,
             )
             is_deepseek = is_deepseek_reasoning_model(reasoning_model)
             is_groq = is_groq_reasoning_model(reasoning_model)
@@ -5974,6 +5977,9 @@ class Agent:
                     telemetry=self.telemetry,
                     debug_mode=self.debug_mode,
                     debug_level=self.debug_level,
+                    session_state=self.session_state,
+                    context=self.context,
+                    extra_data=self.extra_data,
                 )
 
             # Validate reasoning agent
@@ -6108,6 +6114,9 @@ class Agent:
                 telemetry=self.telemetry,
                 debug_mode=self.debug_mode,
                 debug_level=self.debug_level,
+                session_state=self.session_state,
+                context=self.context,
+                extra_data=self.extra_data,
             )
             is_deepseek = is_deepseek_reasoning_model(reasoning_model)
             is_groq = is_groq_reasoning_model(reasoning_model)
@@ -6197,6 +6206,9 @@ class Agent:
                     telemetry=self.telemetry,
                     debug_mode=self.debug_mode,
                     debug_level=self.debug_level,
+                    session_state=self.session_state,
+                    context=self.context,
+                    extra_data=self.extra_data,
                 )
 
             # Validate reasoning agent
@@ -6872,7 +6884,7 @@ class Agent:
             document_name = query.replace(" ", "_").replace("?", "").replace("!", "").replace(".", "")
         document_content = json.dumps({"query": query, "result": result})
         log_info(f"Adding document to knowledge base: {document_name}: {document_content}")
-        self.knowledge.add_document_to_knowledge_base(
+        self.knowledge.load_document(
             document=Document(
                 name=document_name,
                 content=document_content,
